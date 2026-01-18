@@ -20,7 +20,11 @@ public sealed class BiatecRouterClient
         if (httpClient is null) throw new ArgumentNullException(nameof(httpClient));
 
         HttpClient = httpClient;
-        Authorization = authorization;
+
+        if (!string.IsNullOrWhiteSpace(authorization))
+        {
+            httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("SigTx", authorization);
+        }
 
         var baseUrl = (httpClient.BaseAddress ?? new Uri("https://router.api.biatec.io")).ToString().TrimEnd('/');
         _api = new BiatecRouterApiClient(baseUrl, httpClient);
@@ -28,30 +32,5 @@ public sealed class BiatecRouterClient
 
     public HttpClient HttpClient { get; }
 
-    public string? Authorization { get; set; }
-
     public BiatecRouterApiClient Api => _api;
-
-    public static BiatecRouterClient Create(BiatecRouterClientOptions? options = null)
-    {
-        options ??= new BiatecRouterClientOptions();
-
-        var authValue = options.Authorization;
-        var handler = new AuthorizationHeaderHandler(() => authValue)
-        {
-            InnerHandler = new HttpClientHandler()
-        };
-
-        var httpClient = new HttpClient(handler)
-        {
-            BaseAddress = options.BaseUri
-        };
-
-        var client = new BiatecRouterClient(httpClient, (string?)null)
-        {
-            Authorization = authValue
-        };
-
-        return client;
-    }
 }

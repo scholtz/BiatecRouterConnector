@@ -1,0 +1,29 @@
+{
+  "runtime": "Net90",
+  "defaultVariables": null,
+  "documentGenerator": {
+    "fromDocument": {
+      "url": "openapi.swagger.json"
+    }
+  },
+  "codeGenerators": {
+    "openApiToCSharpClient": {
+      "className": "BiatecRouterApiClient",
+      "namespace": "BiatecRouterConnector.Generated",
+      "output": "obj/BiatecRouterApiClient.cs",
+      "generateClientClasses": true,
+      "generateClientInterfaces": false,
+      "injectHttpClient": true,
+      "disposeHttpClient": false,
+      "useHttpClientCreationMethod": false,
+      "generateExceptionClasses": true,
+      "exceptionClass": "BiatecRouterApiException",
+      "jsonLibrary": "NewtonsoftJson",
+      "dateType": "System.DateTimeOffset",
+      "parameterDateTimeFormat": "s",
+      "generateOptionalParameters": true,
+      "generateNullableReferenceTypes": true,
+      "useBaseUrl": true
+    }
+  }
+}

@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSwag.MSBuild" Version="14.5.0" PrivateAssets="all" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <NSwagGenerateExceptionClasses>true</NSwagGenerateExceptionClasses>
+  </PropertyGroup>
+
+  <Target Name="GenerateBiatecRouterApiClient" BeforeTargets="Compile">
+    <Exec Command="dotnet --roll-forward LatestMajor &quot;$(PkgNSwag_MSBuild)\tools\Net90\dotnet-nswag.dll&quot; run &quot;$(MSBuildProjectDirectory)\nswag.json&quot; /variables:Configuration=$(Configuration)" />
+  </Target>
+
+  <ItemGroup>
+    <Compile Include="obj\**\BiatecRouterApiClient.cs" Link="Generated\BiatecRouterApiClient.cs" Visible="false" />
+  </ItemGroup>
+
+</Project>

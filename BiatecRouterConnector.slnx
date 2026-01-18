@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="BiatecRouterConnector/BiatecRouterConnector.csproj" />
+  <Project Path="BiatectRouterConnectorTests/BiatectRouterConnectorTests.csproj" />
+</Solution>

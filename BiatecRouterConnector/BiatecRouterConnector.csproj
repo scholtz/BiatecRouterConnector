@@ -5,8 +5,16 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<Authors>Ludovit Scholtz, Daniel Dohne</Authors>
+		<Authors>Ludovit Scholtz</Authors>
 		<Company>Scholtz And Co</Company>
+		<PackageProjectUrl>https://github.com/scholtz/BiatecRouterConnector</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/scholtz/BiatecRouterConnector</RepositoryUrl>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Version>1.0.0.$([System.DateTime]::Now.ToString(yyyyMMddHH))</Version>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageTags>algorand,trading,dex swap,dex aggregator,trade,arc14,arc76,dex,aggregator,algo,swap</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -26,6 +34,14 @@
 
 	<ItemGroup>
 		<Compile Include="obj\**\BiatecRouterApiClient.cs" Link="Generated\BiatecRouterApiClient.cs" Visible="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="README.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>

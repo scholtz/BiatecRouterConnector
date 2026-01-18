@@ -9,6 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Algorand4" Version="4.4.1.2026010317" />
+    <PackageReference Include="AlgorandARC76Account" Version="1.1.0" />
+    <PackageReference Include="AlgorandAuthentication" Version="2.1.1" />
     <PackageReference Include="coverlet.collector" Version="6.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
     <PackageReference Include="NUnit" Version="4.3.2" />
@@ -18,6 +21,10 @@
 
   <ItemGroup>
     <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BiatecRouterConnector\BiatecRouterConnector.csproj" />
   </ItemGroup>
 
 </Project>

@@ -22,7 +22,7 @@ public sealed class BiatecRouterClient
         HttpClient = httpClient;
         Authorization = authorization;
 
-        var baseUrl = (httpClient.BaseAddress ?? new Uri("https://algorand-trades.de-4.biatec.io")).ToString().TrimEnd('/');
+        var baseUrl = (httpClient.BaseAddress ?? new Uri("https://router.api.biatec.io")).ToString().TrimEnd('/');
         _api = new BiatecRouterApiClient(baseUrl, httpClient);
     }
 

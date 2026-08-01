@@ -61,9 +61,16 @@
 		though the Exec below just generated the file a moment earlier.
 	-->
 	<Target Name="GenerateBiatecRouterApiClient" BeforeTargets="CoreCompile">
-		<Exec Command="dotnet --roll-forward LatestMajor &quot;$(PkgNSwag_MSBuild)\tools\Net100\dotnet-nswag.dll&quot; run &quot;$(MSBuildProjectDirectory)\nswag.json&quot; /variables:Configuration=$(Configuration)" />
+		<!--
+			Forward slashes only: this Exec command runs through /bin/sh on Linux/macOS CI runners,
+			where backslash is not a path separator (it's just a literal character in the resulting
+			argument), so a hardcoded "\tools\Net100\..." path silently resolves to a nonexistent file
+			there even though it works fine on Windows. Forward slashes are accepted by both dotnet/
+			MSBuild on Windows and the shell on Linux/macOS.
+		-->
+		<Exec Command="dotnet --roll-forward LatestMajor &quot;$(PkgNSwag_MSBuild)/tools/Net100/dotnet-nswag.dll&quot; run &quot;$(MSBuildProjectDirectory)/nswag.json&quot; /variables:Configuration=$(Configuration)" />
 		<ItemGroup>
-			<Compile Include="obj\**\BiatecRouterApiClient.cs" Link="Generated\BiatecRouterApiClient.cs" Visible="false" />
+			<Compile Include="obj/**/BiatecRouterApiClient.cs" Link="Generated/BiatecRouterApiClient.cs" Visible="false" />
 		</ItemGroup>
 	</Target>
 

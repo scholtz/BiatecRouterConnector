@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace BiatecRouterConnector
 {
+    /// <summary>Conversion helpers between Algorand SDK types and the generated router API types.</summary>
     public static class Extensions
     {
+        /// <summary>
+        /// Maps an Algod <see cref="Algorand.Algod.Model.TransactionParametersResponse"/> to the router
+        /// API's <see cref="BiatecRouterConnector.Generated.TransactionParametersResponse"/>, for use as
+        /// <c>RouteInputParameters.TransParams</c>.
+        /// </summary>
         public static BiatecRouterConnector.Generated.TransactionParametersResponse ToRouterParams(this Algorand.Algod.Model.TransactionParametersResponse txParams)
         {
-            if (txParams is null) throw new ArgumentNullException(nameof(txParams));
+            ArgumentNullException.ThrowIfNull(txParams);
             return new Generated.TransactionParametersResponse
             {
                 ConsensusVersion = txParams.ConsensusVersion,

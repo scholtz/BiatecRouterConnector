@@ -11,10 +11,15 @@
 		<RepositoryUrl>https://github.com/scholtz/BiatecRouterConnector</RepositoryUrl>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<!-- Local/dev fallback; CI overrides via -p:Version=1.0.<run_number> so every push publishes a strictly higher version. -->
 		<Version>1.0.0.$([System.DateTime]::Now.ToString(yyyyMMddHH))</Version>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>algorand,trading,dex swap,dex aggregator,trade,arc14,arc76,dex,aggregator,algo,swap</PackageTags>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<!-- CA1708 fires on the NSwag-generated Generated.AMMType/AmmType pair; the names come from the
+		     router's OpenAPI schema and aren't ours to rename. -->
+		<NoWarn>$(NoWarn);CA1708</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -28,13 +33,20 @@
 		<NSwagGenerateExceptionClasses>true</NSwagGenerateExceptionClasses>
 	</PropertyGroup>
 
-	<Target Name="GenerateBiatecRouterApiClient" BeforeTargets="Compile">
+	<!--
+		BeforeTargets="CoreCompile" (not "Compile"): the generated file must be added to @(Compile)
+		*inside* this target so MSBuild picks it up dynamically during this same build. A top-level
+		<ItemGroup> with this wildcard is evaluated once, before any target runs, so on a truly clean
+		checkout (no obj\BiatecRouterApiClient.cs yet, e.g. the first build in CI) it would match
+		nothing and the build would fail with "type or namespace 'Generated' does not exist" - even
+		though the Exec below just generated the file a moment earlier.
+	-->
+	<Target Name="GenerateBiatecRouterApiClient" BeforeTargets="CoreCompile">
 		<Exec Command="dotnet --roll-forward LatestMajor &quot;$(PkgNSwag_MSBuild)\tools\Net100\dotnet-nswag.dll&quot; run &quot;$(MSBuildProjectDirectory)\nswag.json&quot; /variables:Configuration=$(Configuration)" />
+		<ItemGroup>
+			<Compile Include="obj\**\BiatecRouterApiClient.cs" Link="Generated\BiatecRouterApiClient.cs" Visible="false" />
+		</ItemGroup>
 	</Target>
-
-	<ItemGroup>
-		<Compile Include="obj\**\BiatecRouterApiClient.cs" Link="Generated\BiatecRouterApiClient.cs" Visible="false" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<None Update="README.md">

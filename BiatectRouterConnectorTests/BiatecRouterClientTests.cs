@@ -1,7 +1,7 @@
-﻿using Algorand;
+using System.Net;
+using Algorand;
 using Algorand.Algod;
 using BiatecRouterConnector;
-using System.Net;
 
 namespace BiatectRouterConnectorTests;
 

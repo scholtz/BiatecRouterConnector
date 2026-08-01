@@ -1,5 +1,8 @@
 # BiatecRouterConnector
 
+[![CI/CD](https://github.com/scholtz/BiatecRouterConnector/actions/workflows/ci.yml/badge.svg)](https://github.com/scholtz/BiatecRouterConnector/actions/workflows/ci.yml)
+[![NuGet](https://img.shields.io/nuget/v/BiatecRouterConnector.svg)](https://www.nuget.org/packages/BiatecRouterConnector)
+
 NuGet library for calling the Biatec Router API (routing swaps and generating transactions to be signed on Algorand / AVM chains).
 
 ## Authorization

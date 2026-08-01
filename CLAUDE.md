@@ -37,8 +37,18 @@ unsigned swap transactions.
 generated fresh on every build:
 
 - MSBuild target `GenerateBiatecRouterApiClient` (in `BiatecRouterConnector.csproj`, runs
-  `BeforeTargets="Compile"`) invokes `dotnet-nswag.dll` against `nswag.json`, which reads
+  `BeforeTargets="CoreCompile"`) invokes `dotnet-nswag.dll` against `nswag.json`, which reads
   `openapi.swagger.json` and emits `obj/BiatecRouterApiClient.cs`.
+- **Don't move the `<Compile Include="obj\**\BiatecRouterApiClient.cs">` item back out to a
+  top-level `<ItemGroup>`.** It must stay *inside* the target, right after the `<Exec>` call. A
+  top-level item group with that wildcard is evaluated once, before any target runs; on a genuinely
+  clean checkout (no `obj/BiatecRouterApiClient.cs` yet — every CI run) it would match nothing, so
+  the build fails on its first pass even though the `Exec` generates the file a moment later. Putting
+  the `<ItemGroup>` inside the target adds it to `@(Compile)` dynamically during that same build.
+- `GeneratePackageOnBuild=true` removes `Build` from `Pack`'s dependency chain (the assumption is
+  Pack runs *as part of* Build, not the reverse). Running `dotnet pack` by itself on a clean
+  checkout therefore fails with `NU5026` ("dll to be packed was not found on disk") — always
+  `dotnet build` first, then `dotnet pack --no-build` (see the `publish` job in `ci.yml`).
 - The `NSwag.MSBuild` package version and the `runtime` field in `nswag.json` must reference the
   **same** target framework folder (e.g. both `Net100`, or both `Net90`) — check
   `~/.nuget/packages/nswag.msbuild/<version>/tools/` for the available folders when bumping the
@@ -73,13 +83,74 @@ There is no separate "generate" step to remember — building always regenerates
 `dotnet list <csproj> package --outdated` / `--vulnerable --include-transitive` are the commands
 used to check for stale/vulnerable NuGet dependencies across both projects.
 
+Both projects use NuGet lock files (`packages.lock.json`, via
+`RestorePackagesWithLockFile` in `Directory.Build.props`). After bumping any `PackageReference`
+version, run `dotnet restore --force-evaluate` to refresh the lock files and commit them — CI
+restores with `--locked-mode`, which fails the build if a lock file is stale.
+
+## Linting / code style
+
+- `.editorconfig` (repo root) defines formatting and a handful of style rules.
+- `Directory.Build.props` enables .NET analyzers (`EnableNETAnalyzers`, `AnalysisLevel=latest`,
+  `AnalysisMode=Recommended`) and `EnforceCodeStyleInBuild`, so style violations show up as build
+  warnings locally. When `ContinuousIntegrationBuild=true` (set by CI), the same violations become
+  build **errors** via `TreatWarningsAsErrors` — this is what CI's build step passes.
+- To check formatting the same way CI does:
+  ```bash
+  dotnet build BiatecRouterConnector.slnx -p:ContinuousIntegrationBuild=true
+  dotnet format BiatecRouterConnector.slnx --verify-no-changes
+  ```
+  Run `dotnet format BiatecRouterConnector.slnx` (no `--verify-no-changes`) to auto-fix.
+- **Ordering matters**: `dotnet format` must run *after* a build, not before — the generated
+  `BiatecRouterApiClient.cs` doesn't exist until the NSwag `BeforeTargets="CoreCompile"` target has run
+  once, and `dotnet format`'s design-time build won't trigger it on a clean checkout.
+- The library project (`BiatecRouterConnector.csproj`) has `GenerateDocumentationFile=true` and
+  therefore requires XML doc comments (`CS1591`) on all public members — this is enforced as an
+  error under `ContinuousIntegrationBuild=true`. The test project suppresses `CS1591` since it
+  isn't published.
+- `NoWarn` for `CA1708` is set in the library csproj because the NSwag-generated
+  `Generated.AMMType`/`AmmType` pair (names that differ only by case) come from the router's
+  OpenAPI schema and aren't ours to rename.
+
+## CI/CD (GitHub Actions)
+
+`.github/workflows/ci.yml` runs on every push (any branch) and every pull request:
+
+1. **`build-test`** job: restore (`--locked-mode`) → build (`Release`,
+   `ContinuousIntegrationBuild=true` so warnings are errors) → `dotnet format --verify-no-changes`
+   → `dotnet test`.
+2. **`publish`** job: only runs on `push` to `refs/heads/master`, and only after `build-test`
+   succeeds. Packs `BiatecRouterConnector.csproj` with
+   `-p:Version=1.0.${{ github.run_number }}` (the GitHub Actions run number always increases, so
+   every push to master produces a strictly higher, unique version — no manual version bumping),
+   then publishes to nuget.org using **Trusted Publishing** (OIDC, no stored API key):
+   `NuGet/login@v1` exchanges a short-lived GitHub OIDC token (`permissions: id-token: write`) for
+   a 1-hour NuGet API key, which `dotnet nuget push --skip-duplicate` then uses.
+
+### One-time setup required (not doable from the repo alone)
+
+Trusted Publishing must be configured on nuget.org before the `publish` job can push successfully:
+
+1. On nuget.org: profile → **Trusted Publishing** → add a policy for
+   `scholtz` / `BiatecRouterConnector` / workflow file `ci.yml` (file name only, no path).
+2. In the GitHub repo settings, add a repository secret `NUGET_USER` set to the nuget.org
+   username (profile name, **not** an API key and not the email address) that owns that policy.
+3. The policy stays in a 7-day "pending" state until the first successful publish supplies GitHub's
+   repo/owner IDs; after that it's permanent. If 7 days pass with no publish, just re-trigger it on
+   nuget.org.
+
+If `NUGET_USER` or the nuget.org policy is missing/misconfigured, the `publish` job fails at the
+`NuGet login` step — this is expected until the above is done, and does not indicate a bug in the
+workflow.
+
 ## Conventions
 
 - Target framework is `net10.0`; nullable reference types and implicit usings are enabled.
 - JSON serialization for the generated client uses Newtonsoft.Json (`jsonLibrary: NewtonsoftJson`
   in `nswag.json`), not `System.Text.Json`.
-- The package version is date-stamped automatically:
-  `<Version>1.0.0.$([System.DateTime]::Now.ToString(yyyyMMddHH))</Version>` — don't hand-edit it.
+- The `<Version>` in `BiatecRouterConnector.csproj` (date-stamped) is only a local/dev fallback for
+  `dotnet pack` run by hand. The version actually published to NuGet is always set by CI via
+  `-p:Version=1.0.<run_number>` — don't try to "fix" versioning by hand-editing the csproj.
 - Keep `BiatecRouterConnector/README.md` and the root `README.md` identical; the former is what
   ships inside the NuGet package.
 - The `ReceiveMinimum` slippage-protection warning in the README examples is deliberate and should

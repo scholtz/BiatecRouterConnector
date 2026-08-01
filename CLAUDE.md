@@ -120,12 +120,14 @@ restores with `--locked-mode`, which fails the build if a lock file is stale.
    `ContinuousIntegrationBuild=true` so warnings are errors) → `dotnet format --verify-no-changes`
    → `dotnet test`.
 2. **`publish`** job: only runs on `push` to `refs/heads/master`, and only after `build-test`
-   succeeds. Packs `BiatecRouterConnector.csproj` with
-   `-p:Version=1.0.${{ github.run_number }}` (the GitHub Actions run number always increases, so
-   every push to master produces a strictly higher, unique version — no manual version bumping),
-   then publishes to nuget.org using **Trusted Publishing** (OIDC, no stored API key):
-   `NuGet/login@v1` exchanges a short-lived GitHub OIDC token (`permissions: id-token: write`) for
-   a 1-hour NuGet API key, which `dotnet nuget push --skip-duplicate` then uses.
+   succeeds. Restores, builds, and packs `BiatecRouterConnector.csproj` all with
+   `-p:VersionIncrement=${{ github.run_number }}` (the GitHub Actions run number always increases,
+   so every push to master produces a strictly higher, unique version — no manual version bumping;
+   see `VersionIncrement` in `BiatecRouterConnector.csproj` for how it drives both `Version` and
+   `AssemblyVersion`, and why it must be passed to *every* step, restore included), then publishes
+   to nuget.org using **Trusted Publishing** (OIDC, no stored API key): `NuGet/login@v1` exchanges
+   a short-lived GitHub OIDC token (`permissions: id-token: write`) for a 1-hour NuGet API key,
+   which `dotnet nuget push --skip-duplicate` then uses.
 
 ### One-time setup required (not doable from the repo alone)
 
@@ -148,9 +150,13 @@ workflow.
 - Target framework is `net10.0`; nullable reference types and implicit usings are enabled.
 - JSON serialization for the generated client uses Newtonsoft.Json (`jsonLibrary: NewtonsoftJson`
   in `nswag.json`), not `System.Text.Json`.
-- The `<Version>` in `BiatecRouterConnector.csproj` (date-stamped) is only a local/dev fallback for
-  `dotnet pack` run by hand. The version actually published to NuGet is always set by CI via
-  `-p:Version=1.0.<run_number>` — don't try to "fix" versioning by hand-editing the csproj.
+- Version format is `1.0.<VersionIncrement>.<date>` for both the NuGet package `Version`
+  (`<date>` = `yyyyMMddHH`) and `AssemblyVersion` (`<date>` = `MMdd`, since the CLR requires every
+  `AssemblyVersion` component to be ≤ 65535 — the full `yyyyMMddHH` doesn't fit).
+  `VersionIncrement` defaults to `0` for local/dev builds; CI passes
+  `-p:VersionIncrement=<run_number>` to every `dotnet` invocation for a given build (restore, build,
+  *and* pack — see the comment on `VersionIncrement` in `BiatecRouterConnector.csproj`). Don't try
+  to "fix" versioning by hand-editing the csproj's `Version`/`AssemblyVersion` properties directly.
 - Keep `BiatecRouterConnector/README.md` and the root `README.md` identical; the former is what
   ships inside the NuGet package.
 - The `ReceiveMinimum` slippage-protection warning in the README examples is deliberate and should

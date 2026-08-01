@@ -71,14 +71,19 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      # VersionIncrement drives both the NuGet package Version (1.0.<increment>.<yyyyMMddHH>) and
+      # AssemblyVersion (1.0.<increment>.<MMdd>) - see BiatecRouterConnector.csproj. The GitHub
+      # Actions run number only ever increases, so every push to master produces a strictly higher,
+      # unique version without any manual bumping.
+      #
+      # It must be passed to *every* dotnet CLI step below, including Restore: `dotnet restore`
+      # doesn't compile, but it still evaluates the project and can write GenerateAssemblyInfo's
+      # incremental cache with whatever VersionIncrement it was given. If Restore and Build/Pack
+      # ever used different values, MSBuild's up-to-date check can wrongly skip regenerating
+      # AssemblyInfo.cs, silently baking the wrong version into the assembly (see the comment above
+      # VersionIncrement in BiatecRouterConnector.csproj for details - this was confirmed by testing).
       - name: Restore
-        run: dotnet restore BiatecRouterConnector.slnx --locked-mode
-
-      # Package version is Major.Minor from the csproj plus the ever-increasing GitHub Actions
-      # run number, so every push to master produces a strictly higher, unique version.
-      - name: Compute package version
-        id: version
-        run: echo "version=1.0.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+        run: dotnet restore BiatecRouterConnector.slnx --locked-mode -p:VersionIncrement=${{ github.run_number }}
 
       # GeneratePackageOnBuild=true removes "Build" from Pack's dependency chain (it assumes Pack
       # runs *as part of* Build, not the other way around), so `dotnet pack` alone on a clean
@@ -88,7 +93,7 @@ jobs:
           dotnet build BiatecRouterConnector/BiatecRouterConnector.csproj \
             --configuration Release \
             --no-restore \
-            -p:Version=${{ steps.version.outputs.version }} \
+            -p:VersionIncrement=${{ github.run_number }} \
             -p:ContinuousIntegrationBuild=true
 
       - name: Pack
@@ -97,7 +102,7 @@ jobs:
             --configuration Release \
             --no-restore \
             --no-build \
-            -p:Version=${{ steps.version.outputs.version }} \
+            -p:VersionIncrement=${{ github.run_number }} \
             -p:ContinuousIntegrationBuild=true \
             -o ${{ github.workspace }}/artifacts
 

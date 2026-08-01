@@ -11,9 +11,28 @@
 		<RepositoryUrl>https://github.com/scholtz/BiatecRouterConnector</RepositoryUrl>
 		<NeutralLanguage>en-US</NeutralLanguage>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<!-- Local/dev fallback; CI overrides via -p:Version=1.0.<run_number> so every push publishes a strictly higher version. -->
-		<Version>1.0.0.$([System.DateTime]::Now.ToString(yyyyMMddHH))</Version>
-		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<!--
+			CI passes -p:VersionIncrement=<github.run_number>, so every push to master gets a
+			strictly higher, unique package version. Local/dev builds default the increment to 0.
+			AssemblyVersion can't hold the full yyyyMMddHH date (each component must be <= 65535,
+			enforced by the CLR/compiler), so it uses MMdd instead (max 1231) - still bumps on every
+			build without ever exceeding the limit.
+
+			IMPORTANT: pass -p:VersionIncrement=(value) to every dotnet CLI step for a given build
+			(restore AND build AND pack), not just build/pack. "dotnet restore" doesn't compile, but
+			it still evaluates this project and can write GenerateAssemblyInfo's incremental cache
+			file (obj/*.AssemblyInfoInputs.cache) using whatever VersionIncrement it was given. If a
+			later build (even with the "no restore" flag) passes a different VersionIncrement and
+			sees that cache file, MSBuild's Inputs/Outputs up-to-date check can wrongly treat
+			AssemblyInfo.cs as already current and skip regenerating it, silently baking the WRONG
+			VersionIncrement into AssemblyVersion/FileVersion while the NuGet package Version (read
+			directly, not through that cache) stays correct. Confirmed by direct testing; see ci.yml,
+			which passes the same VersionIncrement to its Restore, Build, and Pack steps in the
+			publish job for this reason.
+		-->
+		<VersionIncrement Condition="'$(VersionIncrement)' == ''">0</VersionIncrement>
+		<Version>1.0.$(VersionIncrement).$([System.DateTime]::Now.ToString(yyyyMMddHH))</Version>
+		<AssemblyVersion>1.0.$(VersionIncrement).$([System.DateTime]::Now.ToString(MMdd))</AssemblyVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>algorand,trading,dex swap,dex aggregator,trade,arc14,arc76,dex,aggregator,algo,swap</PackageTags>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>

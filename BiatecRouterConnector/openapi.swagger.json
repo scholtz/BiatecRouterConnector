@@ -1,1007 +1,1540 @@
 {
-  "openapi": "3.0.4",
-  "info": {
-    "title": "BiatecRouter",
-    "version": "1.0"
-  },
-  "paths": {
-    "/api/v1/router/quote": {
-      "get": {
-        "tags": [
-          "Router"
-        ],
-        "summary": "Returns a quoted output amount for swapping amount of fromAsset to toAsset using current pool data.",
-        "parameters": [
-          {
-            "name": "fromAsset",
-            "in": "query",
-            "description": "Input asset id.",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "toAsset",
-            "in": "query",
-            "description": "Output asset id.",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "amount",
-            "in": "query",
-            "description": "Input amount (base units).",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "integer",
-                  "format": "int64"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "integer",
-                  "format": "int64"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "integer",
-                  "format": "int64"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
+    "openapi": "3.1.1",
+    "info": {
+        "title": "BiatecRouter | v1",
+        "version": "1.0.0"
     },
-    "/api/v1/router/route": {
-      "get": {
-        "tags": [
-          "Router"
-        ],
-        "summary": "Returns a detailed route including hop allocations and pool splits.",
-        "parameters": [
-          {
-            "name": "fromAsset",
-            "in": "query",
-            "description": "Input asset id.",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
+    "servers": [
+        {
+            "url": "http://router.api.biatec.io/"
+        }
+    ],
+    "paths": {
+        "/api/v1/router/quote": {
+            "get": {
+                "tags": [
+                    "Router"
+                ],
+                "summary": "Returns a quoted output amount for swapping amount of fromAsset to toAsset using current pool data.",
+                "parameters": [
+                    {
+                        "name": "fromAsset",
+                        "in": "query",
+                        "description": "Input asset id.",
+                        "schema": {
+                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "format": "uint64"
+                        }
+                    },
+                    {
+                        "name": "toAsset",
+                        "in": "query",
+                        "description": "Output asset id.",
+                        "schema": {
+                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "format": "uint64"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "description": "Input amount (base units).",
+                        "schema": {
+                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "format": "uint64"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Estimated output amount in base units.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                    "type": [
+                                        "integer",
+                                        "string"
+                                    ],
+                                    "format": "uint64"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                    "type": [
+                                        "integer",
+                                        "string"
+                                    ],
+                                    "format": "uint64"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "pattern": "^-?(?:0|[1-9]\\d*)$",
+                                    "type": [
+                                        "integer",
+                                        "string"
+                                    ],
+                                    "format": "uint64"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "oauth2": []
+                    }
+                ]
             }
-          },
-          {
-            "name": "toAsset",
-            "in": "query",
-            "description": "Output asset id.",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "amount",
-            "in": "query",
-            "description": "Input amount (base units).",
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "maxRoutes",
-            "in": "query",
-            "description": "Maximum number of routes to return.",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "default": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/QuoteRoute"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/QuoteRoute"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/QuoteRoute"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
         },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
+        "/api/v1/router/route": {
+            "get": {
+                "tags": [
+                    "Router"
+                ],
+                "summary": "Returns a detailed route including hop allocations and pool splits.",
+                "parameters": [
+                    {
+                        "name": "fromAsset",
+                        "in": "query",
+                        "description": "Input asset id.",
+                        "schema": {
+                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "format": "uint64"
+                        }
+                    },
+                    {
+                        "name": "toAsset",
+                        "in": "query",
+                        "description": "Output asset id.",
+                        "schema": {
+                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "format": "uint64"
+                        }
+                    },
+                    {
+                        "name": "amount",
+                        "in": "query",
+                        "description": "Input amount (base units).",
+                        "schema": {
+                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "format": "uint64"
+                        }
+                    },
+                    {
+                        "name": "maxRoutes",
+                        "in": "query",
+                        "description": "Maximum number of routes to return.",
+                        "schema": {
+                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "format": "int32",
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Estimated output amount in base units.",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/QuoteRoute"
+                                    }
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/QuoteRoute"
+                                    }
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/QuoteRoute"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "oauth2": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/router/stats": {
+            "get": {
+                "tags": [
+                    "Router"
+                ],
+                "summary": "Returns live statistics for the router instance (uptime, request counters, pool counts).",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RouterStats"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RouterStats"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RouterStats"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "oauth2": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/router/snapshot": {
+            "get": {
+                "tags": [
+                    "Router"
+                ],
+                "summary": "Exports current pools and aggregated pools as JSON snapshot.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExportSnapshot"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExportSnapshot"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ExportSnapshot"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "oauth2": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/router/routeTxs": {
+            "post": {
+                "tags": [
+                    "Router"
+                ],
+                "summary": "Creates and returns a set of unsigned Algorand transactions for the specified swap route.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RouteInputParameters"
+                            }
+                        },
+                        "text/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RouteInputParameters"
+                            }
+                        },
+                        "application/*+json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RouteInputParameters"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RouteOutputCover"
+                                }
+                            },
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RouteOutputCover"
+                                }
+                            },
+                            "text/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RouteOutputCover"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "oauth2": []
+                    }
+                ]
+            }
+        }
     },
-    "/api/v1/router/stats": {
-      "get": {
-        "tags": [
-          "Router"
-        ],
-        "summary": "Returns live statistics for the router instance (uptime, request counters, pool counts).",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/RouterStats"
+    "components": {
+        "schemas": {
+            "AggregatedPool": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "assetIdA": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "assetIdB": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "virtualSumALevel1": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "virtualSumBLevel1": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "virtualSumALevel1ForPrice": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "virtualSumBLevel1ForPrice": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "virtualSumALevel2": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "virtualSumBLevel2": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "tvL_A": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "tvL_B": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "poolCount": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "int32"
+                    },
+                    "level1Pools": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "level2Pools": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "lastUpdated": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "format": "date-time"
+                    },
+                    "virtualSumA": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "virtualSumB": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "totalTVLAssetAInUSD": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "totalTVLAssetBInUSD": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "volume1H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "volume24H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "volume7D": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceAUSD1H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceAUSD24H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceAUSD7D": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceBUSD1H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceBUSD24H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceBUSD7D": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    }
                 }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RouterStats"
+            },
+            "AMMType": {
+                "enum": [
+                    "OldAMM",
+                    "StableSwap",
+                    "ConcentratedLiquidityAMM",
+                    null
+                ]
+            },
+            "AssetHolding": {
+                "type": "object",
+                "properties": {
+                    "assetId": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "account": {
+                        "type": "string"
+                    }
                 }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RouterStats"
+            },
+            "BoxRef": {
+                "required": [
+                    "app",
+                    "name"
+                ],
+                "type": "object",
+                "properties": {
+                    "app": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "name": {
+                        "type": "string",
+                        "format": "byte"
+                    }
                 }
-              }
+            },
+            "DEXProtocol": {
+                "enum": [
+                    "Pact",
+                    "Tiny",
+                    "Biatec"
+                ]
+            },
+            "ExportSnapshot": {
+                "type": "object",
+                "properties": {
+                    "generatedAt": {
+                        "type": "string",
+                        "description": "UTC time when snapshot was generated.",
+                        "format": "date-time"
+                    },
+                    "pools": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Pool"
+                        },
+                        "description": "Collection of individual pools currently loaded."
+                    },
+                    "aggregatedPools": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AggregatedPool"
+                        },
+                        "description": "Collection of aggregated pools currently loaded."
+                    }
+                },
+                "description": "Snapshot payload containing current pools and aggregated pools used for exporting/importing router state."
+            },
+            "HopExecution": {
+                "type": "object",
+                "properties": {
+                    "fromAsset": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "toAsset": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "aggregatedPoolId": {
+                        "type": "string"
+                    },
+                    "inputAmount": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "outputAmount": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "pools": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PoolExecution"
+                        }
+                    },
+                    "networkFeeMicroAlgos": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "usedAggregatedFallback": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "Pool": {
+                "type": "object",
+                "properties": {
+                    "poolAddress": {
+                        "type": "string"
+                    },
+                    "poolAppId": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "assetIdA": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "assetADecimals": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "assetIdB": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "assetBDecimals": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "assetIdLP": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "a": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "b": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "stableA": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "stableB": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "amplifier": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "af": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "bf": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "l": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "pMin": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "pMax": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "verificationClass": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "protocol": {
+                        "$ref": "#/components/schemas/DEXProtocol"
+                    },
+                    "timestamp": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "format": "date-time"
+                    },
+                    "ammType": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "$ref": "#/components/schemas/AMMType"
+                            }
+                        ]
+                    },
+                    "approvalProgramHash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "lpFee": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "protocolFeePortion": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "totalTVLAssetAInUSD": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "totalTVLAssetBInUSD": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "volume1H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "volume24H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "volume7D": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceAUSD1H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceAUSD24H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceAUSD7D": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceBUSD1H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceBUSD24H": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "priceBUSD7D": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "null",
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "virtualAmountA": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "virtualAmountAForPrice": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "realAmountA": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "virtualAmountB": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "virtualAmountBForPrice": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    },
+                    "realAmountB": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "format": "double"
+                    }
+                }
+            },
+            "PoolExecution": {
+                "type": "object",
+                "properties": {
+                    "poolAppId": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "poolAppAddress": {
+                        "type": "string"
+                    },
+                    "assetA": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "assetB": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "assetLP": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "amountIn": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "amountOut": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "protocol": {
+                        "$ref": "#/components/schemas/DEXProtocol"
+                    },
+                    "networkFeeMicroAlgos": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    }
+                }
+            },
+            "QuoteRoute": {
+                "type": "object",
+                "properties": {
+                    "fromAsset": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "toAsset": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "inputAmount": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "outputAmount": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "hops": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/HopExecution"
+                        }
+                    },
+                    "totalNetworkFeeMicroAlgos": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "resources": {
+                        "$ref": "#/components/schemas/RequiredResourceGroup"
+                    }
+                }
+            },
+            "RequiredResourceGroup": {
+                "type": "object",
+                "properties": {
+                    "assets": {
+                        "type": "array",
+                        "items": {
+                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "format": "uint64"
+                        }
+                    },
+                    "applications": {
+                        "type": "array",
+                        "items": {
+                            "pattern": "^-?(?:0|[1-9]\\d*)$",
+                            "type": [
+                                "integer",
+                                "string"
+                            ],
+                            "format": "uint64"
+                        }
+                    },
+                    "accounts": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "boxes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BoxRef"
+                        }
+                    },
+                    "assetHoldings": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AssetHolding"
+                        }
+                    }
+                }
+            },
+            "RouteInputParameters": {
+                "type": "object",
+                "properties": {
+                    "sender": {
+                        "type": "string",
+                        "description": "Sender who will be signing the transactions"
+                    },
+                    "fromAsset": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "From asset ID",
+                        "format": "uint64"
+                    },
+                    "toAsset": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "To asset ID",
+                        "format": "uint64"
+                    },
+                    "swapAmount": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Amount to swap in base units of asset FromAsset",
+                        "format": "uint64"
+                    },
+                    "receiveMinimum": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Minimum amount to receive in base units of asset ToAsset",
+                        "format": "uint64"
+                    },
+                    "routesCount": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Specifies the number of routes to calculate. The default value is 1.",
+                        "format": "int32"
+                    },
+                    "maxHops": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "null",
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Maximum hops to use in route calculation. The default value is 3.",
+                        "format": "int32"
+                    },
+                    "route": {
+                        "type": [
+                            "null",
+                            "array"
+                        ],
+                        "items": {
+                            "$ref": "#/components/schemas/QuoteRoute"
+                        },
+                        "description": "If specified, it will not calculate routes but will use the provided route as the only route to execute."
+                    },
+                    "transParams": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "description": "Allows to define transaction parameters so that they do not have to be fetched from the network at calculation time.",
+                                "$ref": "#/components/schemas/TransactionParametersResponse"
+                            }
+                        ]
+                    }
+                }
+            },
+            "RouteOutput": {
+                "type": "object",
+                "properties": {
+                    "route": {
+                        "description": "The route",
+                        "$ref": "#/components/schemas/QuoteRoute"
+                    },
+                    "txsToSign": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Txs to sign in base64 format and byte array in msgpack format"
+                    }
+                }
+            },
+            "RouteOutputCover": {
+                "type": "object",
+                "properties": {
+                    "input": {
+                        "description": "Input parameters",
+                        "$ref": "#/components/schemas/RouteInputParameters"
+                    },
+                    "transParams": {
+                        "oneOf": [
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "description": "Transaction parameters from input or fetched from network",
+                                "$ref": "#/components/schemas/TransactionParametersResponse"
+                            }
+                        ]
+                    },
+                    "routes": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RouteOutput"
+                        },
+                        "description": "Calculated routes"
+                    }
+                }
+            },
+            "RouterStats": {
+                "type": "object",
+                "properties": {
+                    "instanceId": {
+                        "type": "string",
+                        "description": "Unique identifier of the router service instance (generated at startup).",
+                        "format": "uuid"
+                    },
+                    "startTime": {
+                        "type": "string",
+                        "description": "UTC timestamp when the router instance started.",
+                        "format": "date-time"
+                    },
+                    "uptimeSeconds": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "description": "Elapsed uptime in seconds since DateTimeOffset RouterStats.StartTime.",
+                        "format": "double"
+                    },
+                    "poolsCount": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Current number of individual pools loaded in memory.",
+                        "format": "int32"
+                    },
+                    "aggregatedPoolsCount": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Current number of aggregated pools (asset pair liquidity aggregations).",
+                        "format": "int32"
+                    },
+                    "quoteRequests": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Total count of quote (simple amount) requests served.",
+                        "format": "int64"
+                    },
+                    "routeRequests": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Total count of detailed route requests served.",
+                        "format": "int64"
+                    },
+                    "totalQuotedInput": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Sum of all input amounts quoted (base units).",
+                        "format": "uint64"
+                    },
+                    "totalQuotedOutput": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Sum of all output amounts produced for quotes (base units).",
+                        "format": "uint64"
+                    },
+                    "fallbackHops": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Number of hop executions that fell back to aggregated pool estimation due to missing real pools.",
+                        "format": "int64"
+                    },
+                    "routesWithFallback": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Number of routes where at least one hop used aggregated fallback.",
+                        "format": "int64"
+                    },
+                    "averageHopsPerRoute": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+                        "type": [
+                            "number",
+                            "string"
+                        ],
+                        "description": "Average number of hops per completed route request.",
+                        "format": "double"
+                    },
+                    "poolUpdates": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Number of pool updates received from Redis pubsub.",
+                        "format": "int64"
+                    },
+                    "aggregatedPoolUpdates": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "description": "Number of aggregated pool updates received from Redis pubsub.",
+                        "format": "int64"
+                    }
+                },
+                "description": "Runtime statistics snapshot for a single router service instance since last restart."
+            },
+            "TransactionParametersResponse": {
+                "required": [
+                    "consensusVersion",
+                    "fee",
+                    "genesisHash",
+                    "genesisId",
+                    "lastRound",
+                    "minFee"
+                ],
+                "type": "object",
+                "properties": {
+                    "consensusVersion": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "fee": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "genesisHash": {
+                        "type": [
+                            "null",
+                            "string"
+                        ],
+                        "format": "byte"
+                    },
+                    "genesisId": {
+                        "type": [
+                            "null",
+                            "string"
+                        ]
+                    },
+                    "lastRound": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    },
+                    "minFee": {
+                        "pattern": "^-?(?:0|[1-9]\\d*)$",
+                        "type": [
+                            "integer",
+                            "string"
+                        ],
+                        "format": "uint64"
+                    }
+                }
             }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
         },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
+        "securitySchemes": {
+            "oauth2": {
+                "type": "apiKey",
+                "description": "ARC-0014 Algorand authentication transaction",
+                "name": "Authorization",
+                "in": "header"
+            }
+        }
     },
-    "/api/v1/router/snapshot": {
-      "get": {
-        "tags": [
-          "Router"
-        ],
-        "summary": "Exports current pools and aggregated pools as JSON snapshot.",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExportSnapshot"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExportSnapshot"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExportSnapshot"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
-    },
-    "/api/v1/router/routeTxs": {
-      "post": {
-        "tags": [
-          "Router"
-        ],
-        "summary": "Creates and returns a set of unsigned Algorand transactions for the specified swap route.",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RouteInputParameters"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RouteInputParameters"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RouteInputParameters"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/RouteOutputCover"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RouteOutputCover"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RouteOutputCover"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        },
-        "security": [
-          {
-            "oauth2": []
-          }
-        ]
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "AMMType": {
-        "enum": [
-          "OldAMM",
-          "StableSwap",
-          "ConcentratedLiquidityAMM"
-        ],
-        "type": "string"
-      },
-      "AggregatedPool": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "nullable": true,
-            "readOnly": true
-          },
-          "assetIdA": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "assetIdB": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "virtualSumALevel1": {
-            "type": "number",
-            "format": "double"
-          },
-          "virtualSumBLevel1": {
-            "type": "number",
-            "format": "double"
-          },
-          "virtualSumALevel2": {
-            "type": "number",
-            "format": "double"
-          },
-          "virtualSumBLevel2": {
-            "type": "number",
-            "format": "double"
-          },
-          "tvL_A": {
-            "type": "number",
-            "format": "double"
-          },
-          "tvL_B": {
-            "type": "number",
-            "format": "double"
-          },
-          "poolCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "level1Pools": {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "level2Pools": {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "lastUpdated": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "virtualSumA": {
-            "type": "number",
-            "format": "double",
-            "readOnly": true
-          },
-          "virtualSumB": {
-            "type": "number",
-            "format": "double",
-            "readOnly": true
-          },
-          "totalTVLAssetAInUSD": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "totalTVLAssetBInUSD": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AssetHolding": {
-        "type": "object",
-        "properties": {
-          "assetId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "account": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "BoxRef": {
-        "required": [
-          "app",
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "app": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "name": {
-            "type": "string",
-            "format": "byte"
-          }
-        },
-        "additionalProperties": false
-      },
-      "DEXProtocol": {
-        "enum": [
-          "Pact",
-          "Tiny",
-          "Biatec"
-        ],
-        "type": "string"
-      },
-      "ExportSnapshot": {
-        "type": "object",
-        "properties": {
-          "generatedAt": {
-            "type": "string",
-            "description": "UTC time when snapshot was generated.",
-            "format": "date-time"
-          },
-          "pools": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Pool"
-            },
-            "description": "Collection of individual pools currently loaded.",
-            "nullable": true
-          },
-          "aggregatedPools": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AggregatedPool"
-            },
-            "description": "Collection of aggregated pools currently loaded.",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false,
-        "description": "Snapshot payload containing current pools and aggregated pools used for exporting/importing router state."
-      },
-      "HopExecution": {
-        "type": "object",
-        "properties": {
-          "fromAsset": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "toAsset": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "aggregatedPoolId": {
-            "type": "string",
-            "nullable": true
-          },
-          "inputAmount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "outputAmount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "pools": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PoolExecution"
-            },
-            "nullable": true
-          },
-          "networkFeeMicroAlgos": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "usedAggregatedFallback": {
-            "type": "boolean",
-            "readOnly": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "Pool": {
-        "type": "object",
-        "properties": {
-          "poolAddress": {
-            "type": "string",
-            "nullable": true
-          },
-          "poolAppId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "assetIdA": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "assetADecimals": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "assetIdB": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "assetBDecimals": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "assetIdLP": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "a": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "b": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "stableA": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "stableB": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "af": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "bf": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "l": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "pMin": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "pMax": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "verificationClass": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "protocol": {
-            "$ref": "#/components/schemas/DEXProtocol"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "ammType": {
-            "$ref": "#/components/schemas/AMMType"
-          },
-          "approvalProgramHash": {
-            "type": "string",
-            "nullable": true
-          },
-          "lpFee": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "protocolFeePortion": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "totalTVLAssetAInUSD": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "totalTVLAssetBInUSD": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "virtualAmountA": {
-            "type": "number",
-            "format": "double",
-            "readOnly": true
-          },
-          "realAmountA": {
-            "type": "number",
-            "format": "double",
-            "readOnly": true
-          },
-          "virtualAmountB": {
-            "type": "number",
-            "format": "double",
-            "readOnly": true
-          },
-          "realAmountB": {
-            "type": "number",
-            "format": "double",
-            "readOnly": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "PoolExecution": {
-        "type": "object",
-        "properties": {
-          "poolAppId": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "poolAppAddress": {
-            "type": "string",
-            "nullable": true
-          },
-          "assetA": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "assetB": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "assetLP": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "amountIn": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "amountOut": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "protocol": {
-            "$ref": "#/components/schemas/DEXProtocol"
-          },
-          "networkFeeMicroAlgos": {
-            "type": "integer",
-            "format": "int64"
-          }
-        },
-        "additionalProperties": false
-      },
-      "QuoteRoute": {
-        "type": "object",
-        "properties": {
-          "fromAsset": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "toAsset": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "inputAmount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "outputAmount": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "hops": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/HopExecution"
-            },
-            "nullable": true
-          },
-          "totalNetworkFeeMicroAlgos": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "resources": {
-            "$ref": "#/components/schemas/RequiredResourceGroup"
-          }
-        },
-        "additionalProperties": false
-      },
-      "RequiredResourceGroup": {
-        "type": "object",
-        "properties": {
-          "assets": {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "nullable": true
-          },
-          "applications": {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "format": "int64"
-            },
-            "nullable": true
-          },
-          "accounts": {
-            "uniqueItems": true,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
-          "boxes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BoxRef"
-            },
-            "nullable": true
-          },
-          "assetHoldings": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AssetHolding"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RouteInputParameters": {
-        "type": "object",
-        "properties": {
-          "sender": {
-            "type": "string",
-            "description": "Sender who will be signing the transactions",
-            "nullable": true
-          },
-          "fromAsset": {
-            "type": "integer",
-            "description": "From asset ID",
-            "format": "int64"
-          },
-          "toAsset": {
-            "type": "integer",
-            "description": "To asset ID",
-            "format": "int64"
-          },
-          "swapAmount": {
-            "type": "integer",
-            "description": "Amount to swap in base units of asset FromAsset",
-            "format": "int64"
-          },
-          "receiveMinimum": {
-            "type": "integer",
-            "description": "Minimum amount to receive in base units of asset ToAsset",
-            "format": "int64"
-          },
-          "routesCount": {
-            "type": "integer",
-            "description": "Specifies the number of routes to calculate. The default value is 1.",
-            "format": "int32"
-          },
-          "maxHops": {
-            "type": "integer",
-            "description": "Maximum hops to use in route calculation. The default value is 3.",
-            "format": "int32",
-            "nullable": true
-          },
-          "route": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/QuoteRoute"
-            },
-            "description": "If specified, it will not calculate routes but will use the provided route as the only route to execute.",
-            "nullable": true
-          },
-          "transParams": {
-            "$ref": "#/components/schemas/TransactionParametersResponse"
-          }
-        },
-        "additionalProperties": false
-      },
-      "RouteOutput": {
-        "type": "object",
-        "properties": {
-          "route": {
-            "$ref": "#/components/schemas/QuoteRoute"
-          },
-          "txsToSign": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "description": "Txs to sign in base64 format and byte array in msgpack format",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RouteOutputCover": {
-        "type": "object",
-        "properties": {
-          "input": {
-            "$ref": "#/components/schemas/RouteInputParameters"
-          },
-          "transParams": {
-            "$ref": "#/components/schemas/TransactionParametersResponse"
-          },
-          "routes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/RouteOutput"
-            },
-            "description": "Calculated routes",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RouterStats": {
-        "type": "object",
-        "properties": {
-          "instanceId": {
-            "type": "string",
-            "description": "Unique identifier of the router service instance (generated at startup).",
-            "format": "uuid"
-          },
-          "startTime": {
-            "type": "string",
-            "description": "UTC timestamp when the router instance started.",
-            "format": "date-time"
-          },
-          "uptimeSeconds": {
-            "type": "number",
-            "description": "Elapsed uptime in seconds since BiatecRouter.Model.RouterStats.StartTime.",
-            "format": "double"
-          },
-          "poolsCount": {
-            "type": "integer",
-            "description": "Current number of individual pools loaded in memory.",
-            "format": "int32"
-          },
-          "aggregatedPoolsCount": {
-            "type": "integer",
-            "description": "Current number of aggregated pools (asset pair liquidity aggregations).",
-            "format": "int32"
-          },
-          "quoteRequests": {
-            "type": "integer",
-            "description": "Total count of quote (simple amount) requests served.",
-            "format": "int64"
-          },
-          "routeRequests": {
-            "type": "integer",
-            "description": "Total count of detailed route requests served.",
-            "format": "int64"
-          },
-          "totalQuotedInput": {
-            "type": "integer",
-            "description": "Sum of all input amounts quoted (base units).",
-            "format": "int64"
-          },
-          "totalQuotedOutput": {
-            "type": "integer",
-            "description": "Sum of all output amounts produced for quotes (base units).",
-            "format": "int64"
-          },
-          "fallbackHops": {
-            "type": "integer",
-            "description": "Number of hop executions that fell back to aggregated pool estimation due to missing real pools.",
-            "format": "int64"
-          },
-          "routesWithFallback": {
-            "type": "integer",
-            "description": "Number of routes where at least one hop used aggregated fallback.",
-            "format": "int64"
-          },
-          "averageHopsPerRoute": {
-            "type": "number",
-            "description": "Average number of hops per completed route request.",
-            "format": "double"
-          },
-          "poolUpdates": {
-            "type": "integer",
-            "description": "Number of pool updates received from Redis pubsub.",
-            "format": "int64"
-          },
-          "aggregatedPoolUpdates": {
-            "type": "integer",
-            "description": "Number of aggregated pool updates received from Redis pubsub.",
-            "format": "int64"
-          }
-        },
-        "additionalProperties": false,
-        "description": "Runtime statistics snapshot for a single router service instance since last restart."
-      },
-      "TransactionParametersResponse": {
-        "required": [
-          "consensusVersion",
-          "fee",
-          "genesisHash",
-          "genesisId",
-          "lastRound",
-          "minFee"
-        ],
-        "type": "object",
-        "properties": {
-          "consensusVersion": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "fee": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "genesisHash": {
-            "type": "string",
-            "format": "byte"
-          },
-          "genesisId": {
-            "minLength": 1,
-            "type": "string"
-          },
-          "lastRound": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "minFee": {
-            "type": "integer",
-            "format": "int64"
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "securitySchemes": {
-      "oauth2": {
-        "type": "apiKey",
-        "description": "ARC-0014 Algorand authentication transaction",
-        "name": "Authorization",
-        "in": "header"
-      }
-    }
-  },
-  "tags": [
-    {
-      "name": "Router"
-    }
-  ]
+    "tags": [
+        {
+            "name": "Router"
+        }
+    ]
 }

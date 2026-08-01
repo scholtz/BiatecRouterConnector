@@ -12,11 +12,11 @@ namespace BiatecRouterConnector
             return new Generated.TransactionParametersResponse
             {
                 ConsensusVersion = txParams.ConsensusVersion,
-                Fee = Convert.ToInt64(txParams.Fee),
+                Fee = Convert.ToUInt64(txParams.Fee),
                 GenesisHash = txParams.GenesisHash,
                 GenesisId = txParams.GenesisId,
-                LastRound = Convert.ToInt64(txParams.LastRound),
-                MinFee = Convert.ToInt64(txParams.MinFee),
+                LastRound = Convert.ToUInt64(txParams.LastRound),
+                MinFee = Convert.ToUInt64(txParams.MinFee),
             };
         }
     }

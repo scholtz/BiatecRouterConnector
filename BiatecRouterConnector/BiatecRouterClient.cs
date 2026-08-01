@@ -27,7 +27,7 @@ public sealed class BiatecRouterClient
         }
 
         var baseUrl = (httpClient.BaseAddress ?? new Uri("https://router.api.biatec.io")).ToString().TrimEnd('/');
-        _api = new BiatecRouterApiClient(baseUrl, httpClient);
+        _api = new BiatecRouterApiClient(httpClient) { BaseUrl = baseUrl };
     }
 
     public HttpClient HttpClient { get; }

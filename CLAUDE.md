@@ -20,6 +20,8 @@ unsigned swap transactions.
   - `Extensions.cs` — `ToRouterParams()` maps `Algorand.Algod.Model.TransactionParametersResponse`
     (Algorand SDK type) to the generated `TransactionParametersResponse` (router API type). Field
     types are `ulong` on the router side — cast with `Convert.ToUInt64`, not `ToInt64`.
+  - `icon.png` — 256x256 NuGet package icon (`PackageIcon`). Packed at the package root; deleting or
+    moving it breaks `dotnet pack` with `NU5046`. Every build packs (`GeneratePackageOnBuild`), so CI catches it.
   - `openapi.swagger.json` — OpenAPI/Swagger doc for the router API, checked into source control.
   - `nswag.json` — NSwag config that generates the client at build time.
   - `README.md` — **this is the file packed into the NuGet package** (`PackageReadmeFile`). Keep

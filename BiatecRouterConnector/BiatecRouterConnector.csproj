@@ -77,7 +77,7 @@
 	</Target>
 
 	<ItemGroup>
-		<None Include="icon.png" Pack="true" PackagePath="\" />
+		<None Include="icon.png" Pack="true" PackagePath="/" />
 		<None Update="README.md">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Pack>True</Pack>

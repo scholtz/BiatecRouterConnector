@@ -20,7 +20,7 @@ var algodApiInstance = new DefaultApi(algodHttpClient);
 var txparams = await algodApiInstance.TransactionParamsAsync();
 txparams.Fee = 0;
 
-// 2) Create and sign an ARC-0014 auth transaction.
+// 2) Create and sign an ARC-0014 auth transaction. The Account constructor takes a standard 25-word Algorand mnemonic.
 var account = new Algorand.Algod.Model.Account("<MNEMONIC>");
 var tx = Algorand.Algod.Model.Transactions.PaymentTransaction
     .GetPaymentTransactionFromNetworkTransactionParameters(

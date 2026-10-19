@@ -12,7 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Algorand5" Version="5.0.2.2026101113" />
     <PackageReference Include="coverlet.collector" Version="10.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageReference Include="NUnit" Version="5.0.0" />

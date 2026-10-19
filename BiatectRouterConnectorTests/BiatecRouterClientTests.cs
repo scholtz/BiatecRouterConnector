@@ -20,9 +20,8 @@ public sealed class BiatecRouterClientTests
         using var algodHttpClient = HttpClientConfigurator.ConfigureHttpClient(AlgodConfiguration.MainNet);
         DefaultApi algodApiInstance = new DefaultApi(algodHttpClient);
 
-        // NOTE: Replace this mnemonic with a real one only in your local environment.
-        // Do not commit secrets. The router only needs it to produce a signed auth payload.
-        var account = AlgorandARC76AccountDotNet.ARC76.GetAccount("test test test test test test test test test test test test test test test test test test test test test test test test");
+        // A throwaway account: the router only needs it to produce a signed auth payload.
+        var account = new Algorand.Algod.Model.Account();
 
         // The router API expects Authorization header value containing an ARC-0014 auth transaction.
         var routerHttpClient = new HttpClient();

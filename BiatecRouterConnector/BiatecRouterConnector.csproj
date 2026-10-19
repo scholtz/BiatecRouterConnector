@@ -42,8 +42,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Algorand4" Version="4.7.4.2026071920" />
-		<PackageReference Include="AlgorandARC76Account" Version="1.1.0" />
+		<PackageReference Include="Algorand5" Version="5.0.2.2026101113" />
+		<!-- Pins the transitive MessagePack (via Algorand5) above 3.1.8, which has advisory GHSA-qhrr-8q5h-9q3h. -->
+		<PackageReference Include="MessagePack" Version="3.1.12" />
 		<PackageReference Include="NSwag.MSBuild" Version="14.7.1" PrivateAssets="all" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	</ItemGroup>

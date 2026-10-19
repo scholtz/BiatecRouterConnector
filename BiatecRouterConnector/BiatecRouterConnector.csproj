@@ -34,6 +34,7 @@
 		<Version>1.0.$(VersionIncrement).$([System.DateTime]::Now.ToString(yyyyMMddHH))</Version>
 		<AssemblyVersion>1.0.$(VersionIncrement).$([System.DateTime]::Now.ToString(MMdd))</AssemblyVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>icon.png</PackageIcon>
 		<PackageTags>algorand,trading,dex swap,dex aggregator,trade,arc14,arc76,dex,aggregator,algo,swap</PackageTags>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<!-- CA1708 fires on the NSwag-generated Generated.AMMType/AmmType pair; the names come from the
@@ -76,6 +77,7 @@
 	</Target>
 
 	<ItemGroup>
+		<None Include="icon.png" Pack="true" PackagePath="/" />
 		<None Update="README.md">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<Pack>True</Pack>
